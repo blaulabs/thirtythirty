@@ -1,16 +1,14 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require "thirtythirty/version"
-
 Gem::Specification.new do |s|
   s.name        = "thirtythirty"
-  s.version     = Thirtythirty::VERSION
+  s.version     = "0.0.1"
+  s.date        = Time.now
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["TODO: Write your name"]
-  s.email       = ["TODO: Write your email address"]
-  s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.authors     = ["Benjamin Behr", "Thomas Jachmann"]
+  s.email       = ["benny@digitalbehr.de", "self@thomasjachmann.com"]
+  s.homepage    = "http://github.com/blaulabs/thirtythirty"
+  s.summary     = %q{Marshalling customization}
+  s.description = %q{This gem allows for customization of which data to marshal, especially useful for selective session data serialization.}
 
   s.rubyforge_project = "thirtythirty"
 
