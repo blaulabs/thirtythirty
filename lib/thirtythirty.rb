@@ -2,10 +2,37 @@ require "json"
 
 module Thirtythirty
 
+  # Activates marshalling for the given attributes - you have to implement getters/setters yourself!
   def marshal(*attributes)
-    extend ClassMethods
-    send :include, InstanceMethods
-    @marshalled_attributes = attributes
+    configure_marshalling(attributes)
+  end
+
+  # Activates marshalling for the given attributes and generates getters - you have to implement setters yourself!
+  def marshalled_reader(*attributes)
+    attr_reader *configure_marshalling(attributes)
+  end
+
+  # Activates marshalling for the given attributes and generates setters - you have to implement getters yourself!
+  def marshalled_writer(*attributes)
+    attr_writer *configure_marshalling(attributes)
+  end
+
+  # Activates marshalling for the given attributes and generates getters/setters.
+  def marshalled_accessor(*attributes)
+    attr_accessor *configure_marshalling(attributes)
+  end
+
+private
+
+  def configure_marshalling(attributes)
+    unless defined?(@marshalled_attributes)
+      extend ClassMethods
+      send :include, InstanceMethods
+      @marshalled_attributes = []
+    end
+    attributes = attributes.flatten.map(&:to_s).uniq
+    @marshalled_attributes = (@marshalled_attributes | attributes).sort.freeze
+    attributes.map(&:to_sym)
   end
 
   module ClassMethods
@@ -18,7 +45,7 @@ module Thirtythirty
       data = JSON.parse(dumped)
       obj = new
       marshalled_attributes.each do |attr|
-        obj.send(:"#{attr}=", Marshal.load(data[attr.to_s]))
+        obj.send(:"#{attr}=", Marshal.load(data[attr]))
       end
       obj
     end

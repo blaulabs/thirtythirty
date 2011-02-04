@@ -5,13 +5,12 @@ Bundler.require(:default, :development)
 Dir[File.expand_path '../support/*.rb', __FILE__].each {|f| require f}
 
 
-class Base
+class ThirtythirtyBase
   extend Thirtythirty
 end
 
-class BlogPost < Base
+class BlogPost < ThirtythirtyBase
   marshal :title, :description, :comments
-
   attr_accessor :title, :description, :comments, :secret_password
   def initialize(attributes={})
     self.title = attributes[:title] || 'My first blog post'
@@ -21,7 +20,7 @@ class BlogPost < Base
   end
 end
 
-class Comment < Base
+class Comment < ThirtythirtyBase
   marshal :author, :body, :date
   attr_accessor :author, :body, :date
   def initialize(attributes={})
