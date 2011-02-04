@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "thirtythirty"
 
+  s.add_development_dependency "ci_reporter", "~> 1.6.3"
   s.add_development_dependency "rspec", "~> 2.4.0"
   s.add_runtime_dependency "json", "~> 1.5.1"
 
