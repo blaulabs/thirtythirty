@@ -8,18 +8,18 @@ Selectively marshal objects without the fancy ruby 1.9 marshalling:
     extend Thirtythirty
     
     marshalled_accessor :attr1, :attr2
-    attr_accessor :volatile_attr
+    attr_accessor :transient_attr
   end
 
   original = Marshalled.new
   original.attr1 = "value1"
-  original.volatile_attr = "non-marshalled"
+  original.transient_attr = "non-marshalled"
   
   marshalled = Marshal.dump(original)
   
   reloaded = Marshal.load(marshalled)
   
   reloaded.attr1          # => "value1"
-  reloaded.volatile_attr  # => nil
+  reloaded.transient_attr  # => nil
 
 Note: Custom marshalling will only be activated by calling one of the marshalling methods (marshal, marshalled_reader, marshalled_writer, marshalled_accessor), not by extending Thirtythirty alone.
