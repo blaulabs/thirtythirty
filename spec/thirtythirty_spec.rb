@@ -96,45 +96,79 @@ describe Thirtythirty do
 
   end
 
-  describe "marshalling" do
+  describe "marshalling (#_dump/._load)" do
 
-    describe "#_dump" do
+    before do
+      @obj = ThirtythirtyTree.new
+    end
 
-      it "should only dump attributes that should be exposed" do
-        password = "VERY SECRET!"
-        blog_post = BlogPost.new(:secret_password => password)
-        marshalled_blog_post = Marshal.dump(blog_post)
-        marshalled_blog_post.should_not match(Regexp.new(password))
+    it "should dump a string" do
+      Marshal.dump(@obj).should be_a(String)
+    end
+
+    it "should restore a ThirtythirtyTree" do
+      Marshal.load(Marshal.dump(@obj)).should be_a(ThirtythirtyTree)
+    end
+
+    it "should dump/restore marshalled attributes" do
+      @obj.persistent = "data"
+      restored = Marshal.load(Marshal.dump(@obj))
+      restored.persistent.should == "data"
+    end
+
+    it "should not dump/restore unmarshalled attributes" do
+      @obj.transient = "data"
+      restored = Marshal.load(Marshal.dump(@obj))
+      restored.transient.should be_nil
+    end
+
+    context "with a single relation" do
+
+      before do
+        @obj.parent = ThirtythirtyTree.new
       end
 
-      it "should also serialize nested objects so that these objects can also be retrieved by loading the main object" do
-        blog_post = BlogPost.new(:comments => [Comment.new(:author => 'tomj'), Comment.new(:author => 'bennyb')])
-        marshalled_blog_post = Marshal.dump(blog_post)
-        marshalled_blog_post.should match(/bennyb/)
-        marshalled_blog_post.should match(/tomj/)
+      it "should restore a ThirtythirtyTree" do
+        Marshal.load(Marshal.dump(@obj)).parent.should be_a(ThirtythirtyTree)
+      end
+
+      it "should dump/restore marshalled attributes" do
+        @obj.parent.persistent = "data"
+        restored = Marshal.load(Marshal.dump(@obj))
+        restored.parent.persistent.should == "data"
+      end
+
+      it "should not dump/restore unmarshalled attributes" do
+        @obj.parent.transient = "data"
+        restored = Marshal.load(Marshal.dump(@obj))
+        restored.parent.transient.should be_nil
       end
 
     end
 
-    describe "._load" do
+    context "with a collection relation" do
 
-      it "should return a fully deserialized object" do
-        blog_post = BlogPost.new(:comments => [], :title => 'blau is happy')
-        marshalled_blog_post = Marshal.dump(blog_post)
-        deserialized_blog_post = Marshal.load(marshalled_blog_post)
-        deserialized_blog_post.should be_kind_of(BlogPost)
-        deserialized_blog_post.title.should == 'blau is happy'
+      before do
+        @obj.children = [ThirtythirtyTree.new]
       end
 
-      it "should return a fully deserialized object and nested objects" do
-        nice_comment = Comment.new(:author => 'tomj', :body => 'nice article, dude!')
-        blog_post = BlogPost.new(:comments => [nice_comment])
-        marshalled_blog_post = Marshal.dump(blog_post)
-        deserialized_blog_post = Marshal.load(marshalled_blog_post)
-        retrieved_comment = deserialized_blog_post.comments.first
-        retrieved_comment.should be_kind_of(Comment)
-        retrieved_comment.author.should == 'tomj'
-        retrieved_comment.body.should == 'nice article, dude!'
+      it "should restore an array of ThirtythirtyTrees" do
+        children = Marshal.load(Marshal.dump(@obj)).children
+        children.should be_a(Array)
+        children.size.should == 1
+        children.first.should be_a(ThirtythirtyTree)
+      end
+
+      it "should dump/restore marshalled attributes" do
+        @obj.children.first.persistent = "data"
+        restored = Marshal.load(Marshal.dump(@obj))
+        restored.children.first.persistent.should == "data"
+      end
+
+      it "should not dump/restore unmarshalled attributes" do
+        @obj.children.first.transient = "data"
+        restored = Marshal.load(Marshal.dump(@obj))
+        restored.children.first.transient.should be_nil
       end
 
     end
