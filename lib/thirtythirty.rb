@@ -1,5 +1,4 @@
 require "json"
-require "base64"
 
 module Thirtythirty
 
@@ -40,7 +39,7 @@ private
       data = JSON.parse(dumped)
       obj = new
       marshalled_attributes.each do |attr|
-        obj.send(:"#{attr}=", Marshal.load(Base64.decode64(data[attr.to_s])))
+        obj.send(:"#{attr}=", Marshal.load(data[attr.to_s]))
       end
       obj
     end
@@ -50,7 +49,7 @@ private
   module InstanceMethods
 
     def _dump(*args)
-      build_marshalled_attributes_hash {|v| Base64.encode64(Marshal.dump(v))}.to_json
+      build_marshalled_attributes_hash {|v| Marshal.dump(v)}.to_json
     end
 
     def marshalled_attributes
