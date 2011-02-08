@@ -5,36 +5,30 @@ module Thirtythirty
 
   # Activates marshalling for the given attributes - you have to implement getters/setters yourself!
   def marshal(*attributes)
-    configure_marshalling(attributes)
-  end
-
-  # Activates marshalling for the given attributes and generates getters - you have to implement setters yourself!
-  def marshalled_reader(*attributes)
-    attr_reader *configure_marshalling(attributes)
-  end
-
-  # Activates marshalling for the given attributes and generates setters - you have to implement getters yourself!
-  def marshalled_writer(*attributes)
-    attr_writer *configure_marshalling(attributes)
-  end
-
-  # Activates marshalling for the given attributes and generates getters/setters.
-  def marshalled_accessor(*attributes)
-    attr_accessor *configure_marshalling(attributes)
-  end
-
-private
-
-  def configure_marshalling(attributes)
     unless defined?(@marshalled_attributes)
       extend ClassMethods
       send :include, InstanceMethods
       @marshalled_attributes = []
     end
-    attributes = attributes.flatten.map(&:to_sym).uniq
-    @marshalled_attributes = (@marshalled_attributes.map | attributes).freeze
-    attributes.map(&:to_sym)
+    @marshalled_attributes = (@marshalled_attributes.map | attributes.flatten.map(&:to_sym).uniq).freeze
   end
+
+  # Activates marshalling for the given attributes and generates getters - you have to implement setters yourself!
+  def marshalled_reader(*attributes)
+    attr_reader *marshal(attributes)
+  end
+
+  # Activates marshalling for the given attributes and generates setters - you have to implement getters yourself!
+  def marshalled_writer(*attributes)
+    attr_writer *marshal(attributes)
+  end
+
+  # Activates marshalling for the given attributes and generates getters/setters.
+  def marshalled_accessor(*attributes)
+    attr_accessor *marshal(attributes)
+  end
+
+private
 
   module ClassMethods
 
