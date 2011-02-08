@@ -31,8 +31,8 @@ private
       send :include, InstanceMethods
       @marshalled_attributes = []
     end
-    attributes = attributes.flatten.map(&:to_s).uniq
-    @marshalled_attributes = (@marshalled_attributes | attributes).sort.freeze
+    attributes = attributes.flatten.map(&:to_sym).uniq
+    @marshalled_attributes = (@marshalled_attributes.map | attributes).freeze
     attributes.map(&:to_sym)
   end
 
@@ -46,7 +46,7 @@ private
       data = JSON.parse(dumped)
       obj = new
       marshalled_attributes.each do |attr|
-        obj.send(:"#{attr}=", Marshal.load(Base64.decode64(data[attr])))
+        obj.send(:"#{attr}=", Marshal.load(Base64.decode64(data[attr.to_s])))
       end
       obj
     end
@@ -67,8 +67,8 @@ private
 
     def build_marshalled_attributes_hash(&block)
       self.class.marshalled_attributes.inject({}) do |hash, attr|
-        value = self.send(attr.to_sym)
-        hash[attr.to_sym] = block.call(value)
+        value = self.send(attr)
+        hash[attr] = block.call(value)
         hash
       end
     end

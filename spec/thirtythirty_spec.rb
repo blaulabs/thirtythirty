@@ -6,13 +6,13 @@ describe Thirtythirty do
 
     subject do
       cls = Class.new(ThirtythirtyBase) do
-        marshal :attr1, :attr3
+        marshal :attr1, "attr3"
         marshal [:attr1, :attr2]
       end
     end
 
-    it "should add given attributes to marshalled attributes (stringified, unique, sorted, frozen)" do
-      subject.marshalled_attributes.should == %w(attr1 attr2 attr3)
+    it "should add given attributes to marshalled attributes (symbolized, unique, frozen)" do
+      subject.marshalled_attributes.should =~ [:attr1, :attr2, :attr3]
       subject.marshalled_attributes.should be_frozen
     end
 
@@ -22,13 +22,13 @@ describe Thirtythirty do
 
     subject do
       Class.new(ThirtythirtyBase) do
-        marshalled_reader :attr1, :attr3
+        marshalled_reader :attr1, "attr3"
         marshalled_reader [:attr1, :attr2]
       end
     end
 
-    it "should add given attributes to marshalled attributes (stringified, unique, sorted, frozen)" do
-      subject.marshalled_attributes.should == %w(attr1 attr2 attr3)
+    it "should add given attributes to marshalled attributes (symbolized, unique, frozen)" do
+      subject.marshalled_attributes.should =~ [:attr1, :attr2, :attr3]
       subject.marshalled_attributes.should be_frozen
     end
 
@@ -48,13 +48,13 @@ describe Thirtythirty do
 
     subject do
       Class.new(ThirtythirtyBase) do
-        marshalled_writer :attr1, :attr3
+        marshalled_writer :attr1, "attr3"
         marshalled_writer [:attr1, :attr2]
       end
     end
 
-    it "should add given attributes to marshalled attributes (stringified, unique, sorted, frozen)" do
-      subject.marshalled_attributes.should == %w(attr1 attr2 attr3)
+    it "should add given attributes to marshalled attributes (symbolized, unique, frozen)" do
+      subject.marshalled_attributes.should =~ [:attr1, :attr2, :attr3]
       subject.marshalled_attributes.should be_frozen
     end
 
@@ -74,13 +74,13 @@ describe Thirtythirty do
 
     subject do
       Class.new(ThirtythirtyBase) do
-        marshalled_accessor :attr1, :attr3
+        marshalled_accessor :attr1, "attr3"
         marshalled_accessor :attr1, :attr2
       end
     end
 
-    it "should add given attributes to marshalled attributes (stringified, unique, sorted, frozen)" do
-      subject.marshalled_attributes.should == %w(attr1 attr2 attr3)
+    it "should add given attributes to marshalled attributes (symbolized, unique, frozen)" do
+      subject.marshalled_attributes.should =~ [:attr1, :attr2, :attr3]
       subject.marshalled_attributes.should be_frozen
     end
 
