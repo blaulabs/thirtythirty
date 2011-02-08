@@ -20,6 +20,6 @@ Selectively marshal objects without the fancy ruby 1.9 marshalling:
   reloaded = Marshal.load(marshalled)
   
   reloaded.attr1          # => "value1"
-  reloaded.transient_attr  # => nil
+  reloaded.transient_attr # => nil
 
 Note: Custom marshalling will only be activated by calling one of the marshalling methods (marshal, marshalled_reader, marshalled_writer, marshalled_accessor), not by extending Thirtythirty alone.
