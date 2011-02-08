@@ -56,10 +56,31 @@ private
   module InstanceMethods
 
     def _dump(*args)
+      build_marshalled_attributes_hash {|v| Base64.encode64(Marshal.dump(v))}.to_json
+    end
+
+    def marshalled_attributes
+      build_marshalled_attributes_hash {|v| retrieve_marshalled_attributes_of(v)}
+    end
+
+  private
+
+    def build_marshalled_attributes_hash(&block)
       self.class.marshalled_attributes.inject({}) do |hash, attr|
-        hash[attr] = Base64.encode64(Marshal.dump(self.send(attr.to_sym)))
+        value = self.send(attr.to_sym)
+        hash[attr.to_sym] = block.call(value)
         hash
-      end.to_json
+      end
+    end
+
+    def retrieve_marshalled_attributes_of(obj)
+      if obj.is_a?(Array)
+        obj.map {|v| retrieve_marshalled_attributes_of(v)}
+      elsif obj.respond_to?(:marshalled_attributes)
+        obj.marshalled_attributes
+      else
+        obj
+      end
     end
 
   end

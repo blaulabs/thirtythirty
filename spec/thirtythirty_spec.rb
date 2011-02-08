@@ -96,6 +96,41 @@ describe Thirtythirty do
 
   end
 
+  describe "#marshalled_attributes" do
+
+    it "should give all marshalled attributes" do
+      obj = ThirtythirtyTree.new
+      obj.persistent = "p"
+      obj.transient = "t"
+      obj.marshalled_attributes.should == {:persistent => "p", :parent => nil, :children => nil}
+    end
+
+    it "should recursively give marshalled attributes of a single relation" do
+      obj = ThirtythirtyTree.new
+      obj.persistent = "middle"
+      obj.parent = ThirtythirtyTree.new
+      obj.parent.persistent = "parent"
+      obj.marshalled_attributes.should == {
+        :persistent => "middle",
+        :parent => {:persistent => "parent", :parent => nil, :children => nil},
+        :children => nil
+      }
+    end
+
+    it "should recursively give marshalled attributes of a collection relation" do
+      obj = ThirtythirtyTree.new
+      obj.persistent = "middle"
+      obj.children = [ThirtythirtyTree.new]
+      obj.children.first.persistent = "child1"
+      obj.marshalled_attributes.should == {
+        :persistent => "middle",
+        :parent => nil,
+        :children => [{:persistent => "child1", :parent => nil, :children => nil}]
+      }
+    end
+
+  end
+
   describe "marshalling (#_dump/._load)" do
 
     before do
