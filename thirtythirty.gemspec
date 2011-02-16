@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name        = "thirtythirty"
-  s.version     = "0.0.3"
+  s.version     = "0.0.4"
   s.date        = Time.now
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Benjamin Behr", "Thomas Jachmann"]
@@ -14,7 +14,6 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "ci_reporter", "~> 1.6.3"
   s.add_development_dependency "rspec", "~> 2.4.0"
-  s.add_runtime_dependency "json", "~> 1.5.1"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

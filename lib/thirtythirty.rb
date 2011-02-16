@@ -1,5 +1,3 @@
-require "json"
-
 module Thirtythirty
 
   # Activates marshalling for the given attributes - you have to implement getters/setters yourself!
@@ -36,10 +34,10 @@ private
   protected
 
     def _load(dumped)
-      data = JSON.parse(dumped)
+      data = Marshal.load(dumped)
       obj = new
       marshalled_attributes.each do |attr|
-        obj.send(:"#{attr}=", Marshal.load(data[attr.to_s]))
+        obj.send(:"#{attr}=", Marshal.load(data[attr]))
       end
       obj
     end
@@ -49,7 +47,7 @@ private
   module InstanceMethods
 
     def _dump(*args)
-      build_marshalled_attributes_hash {|v| Marshal.dump(v)}.to_json
+      Marshal.dump(build_marshalled_attributes_hash {|v| Marshal.dump(v)})
     end
 
     def marshalled_attributes
