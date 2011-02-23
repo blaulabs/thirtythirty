@@ -131,6 +131,27 @@ describe Thirtythirty do
 
   end
 
+  describe ".marshal_with_compression/#marshalling_compression_level" do
+
+    subject { Class.new(ThirtythirtyBase) }
+
+    it "should default to nil" do
+      subject.marshal # needs to be done to activate custom marshalling at all
+      subject.marshalling_compression_level.should be_nil
+    end
+
+    it "should be settable" do
+      subject.marshal_with_compression Zlib::BEST_SPEED
+      subject.marshalling_compression_level.should == Zlib::BEST_SPEED
+    end
+
+    it "should default to Zlib::BEST_COMPRESSION" do
+      subject.marshal_with_compression
+      subject.marshalling_compression_level.should == Zlib::BEST_COMPRESSION
+    end
+
+  end
+
   describe "marshalling (#_dump/._load)" do
 
     before do
@@ -204,6 +225,24 @@ describe Thirtythirty do
         @obj.children.first.transient = "data"
         restored = Marshal.load(Marshal.dump(@obj))
         restored.children.first.transient.should be_nil
+      end
+
+    end
+
+    context "with compression" do
+
+      it "compressed version should be smaller than the uncompressed version and generally work" do
+        obj = Uncompressed.new
+        obj.persistent = "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo text"
+        uncompressed = Marshal.dump(obj)
+        obj = Compressed.new
+        obj.persistent = "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo text"
+        compressed = Marshal.dump(obj)
+        compressed.size.should < uncompressed.size
+
+        restored = Marshal.load(compressed)
+        restored.should be_a(Compressed)
+        restored.persistent.should == "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo text"
       end
 
     end

@@ -25,16 +25,22 @@ module Thirtythirty
     attr_accessor *marshal(attributes)
   end
 
+  def marshal_with_compression(level = Zlib::BEST_COMPRESSION)
+    marshal
+    @marshalling_compression_level = level
+  end
+
 private
 
   module ClassMethods
 
-    attr_reader :marshalled_attributes
+    attr_reader :marshalled_attributes, :marshalling_compression_level
 
   protected
 
     def _load(dumped)
-      data = Marshal.load(dumped)
+      uncompressed = Zlib::Inflate.inflate(dumped) rescue dumped
+      data = Marshal.load(uncompressed)
       obj = new
       marshalled_attributes.each do |attr|
         obj.send(:"#{attr}=", Marshal.load(data[attr]))
@@ -47,7 +53,9 @@ private
   module InstanceMethods
 
     def _dump(*args)
-      Marshal.dump(build_marshalled_attributes_hash {|v| Marshal.dump(v)})
+      dumped = Marshal.dump(build_marshalled_attributes_hash {|v| Marshal.dump(v)})
+      dumped = Zlib::Deflate.deflate(dumped, self.class.marshalling_compression_level) if self.class.marshalling_compression_level
+      dumped
     end
 
     def marshalled_attributes
