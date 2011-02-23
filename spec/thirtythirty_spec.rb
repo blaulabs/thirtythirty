@@ -247,4 +247,28 @@ describe Thirtythirty do
 
   end
 
+  describe "inheritance" do
+
+    it "should have the same marshalled attributes as the parent" do
+      Class.new(ThirtythirtyTree).marshalled_attributes.should == ThirtythirtyTree.marshalled_attributes
+    end
+
+    it "should be able to add it's own marshalled attributes" do
+      Class.new(ThirtythirtyTree) do
+        marshalled_accessor :another_persistent
+      end.marshalled_attributes.should == ThirtythirtyTree.marshalled_attributes + [:another_persistent]
+    end
+
+    it "should have the same compression level as the parent" do
+      Class.new(Compressed).marshalling_compression_level.should == Compressed.marshalling_compression_level
+    end
+
+    it "should be able to set it's own compression level" do
+      Class.new(Uncompressed) do
+        marshal_with_compression Zlib::BEST_COMPRESSION
+      end.marshalling_compression_level.should == Zlib::BEST_COMPRESSION
+    end
+
+  end
+
 end

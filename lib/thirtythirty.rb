@@ -7,7 +7,7 @@ module Thirtythirty
       send :include, InstanceMethods
       @marshalled_attributes = []
     end
-    @marshalled_attributes = (@marshalled_attributes.map | attributes.flatten.map(&:to_sym).uniq).freeze
+    @marshalled_attributes = (@marshalled_attributes.map | attributes.flatten.map(&:to_sym).uniq)
   end
 
   # Activates marshalling for the given attributes and generates getters - you have to implement setters yourself!
@@ -34,7 +34,13 @@ private
 
   module ClassMethods
 
-    attr_reader :marshalled_attributes, :marshalling_compression_level
+    def marshalled_attributes
+      ((superclass.respond_to?(:marshalled_attributes) ? superclass.marshalled_attributes : []) + (@marshalled_attributes || [])).uniq.freeze
+    end
+
+    def marshalling_compression_level
+      @marshalling_compression_level || (superclass.respond_to?(:marshalling_compression_level) ? superclass.marshalling_compression_level : nil)
+    end
 
   protected
 
