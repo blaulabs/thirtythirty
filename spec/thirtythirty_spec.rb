@@ -154,49 +154,47 @@ describe Thirtythirty do
 
   describe "marshalling (#_dump/._load)" do
 
-    before do
-      @obj = ThirtythirtyTree.new
-    end
+    subject { ThirtythirtyTree.new }
 
     it "should dump a string" do
-      Marshal.dump(@obj).should be_a(String)
+      Marshal.dump(subject).should be_a(String)
     end
 
     it "should restore a ThirtythirtyTree" do
-      Marshal.load(Marshal.dump(@obj)).should be_a(ThirtythirtyTree)
+      Marshal.load(Marshal.dump(subject)).should be_a(ThirtythirtyTree)
     end
 
     it "should dump/restore marshalled attributes" do
-      @obj.persistent = "data"
-      restored = Marshal.load(Marshal.dump(@obj))
+      subject.persistent = "data"
+      restored = Marshal.load(Marshal.dump(subject))
       restored.persistent.should == "data"
     end
 
     it "should not dump/restore unmarshalled attributes" do
-      @obj.transient = "data"
-      restored = Marshal.load(Marshal.dump(@obj))
+      subject.transient = "data"
+      restored = Marshal.load(Marshal.dump(subject))
       restored.transient.should be_nil
     end
 
     context "with a single relation" do
 
       before do
-        @obj.parent = ThirtythirtyTree.new
+        subject.parent = ThirtythirtyTree.new
       end
 
       it "should restore a ThirtythirtyTree" do
-        Marshal.load(Marshal.dump(@obj)).parent.should be_a(ThirtythirtyTree)
+        Marshal.load(Marshal.dump(subject)).parent.should be_a(ThirtythirtyTree)
       end
 
       it "should dump/restore marshalled attributes" do
-        @obj.parent.persistent = "data"
-        restored = Marshal.load(Marshal.dump(@obj))
+        subject.parent.persistent = "data"
+        restored = Marshal.load(Marshal.dump(subject))
         restored.parent.persistent.should == "data"
       end
 
       it "should not dump/restore unmarshalled attributes" do
-        @obj.parent.transient = "data"
-        restored = Marshal.load(Marshal.dump(@obj))
+        subject.parent.transient = "data"
+        restored = Marshal.load(Marshal.dump(subject))
         restored.parent.transient.should be_nil
       end
 
@@ -205,25 +203,25 @@ describe Thirtythirty do
     context "with a collection relation" do
 
       before do
-        @obj.children = [ThirtythirtyTree.new]
+        subject.children = [ThirtythirtyTree.new]
       end
 
       it "should restore an array of ThirtythirtyTrees" do
-        children = Marshal.load(Marshal.dump(@obj)).children
+        children = Marshal.load(Marshal.dump(subject)).children
         children.should be_a(Array)
         children.size.should == 1
         children.first.should be_a(ThirtythirtyTree)
       end
 
       it "should dump/restore marshalled attributes" do
-        @obj.children.first.persistent = "data"
-        restored = Marshal.load(Marshal.dump(@obj))
+        subject.children.first.persistent = "data"
+        restored = Marshal.load(Marshal.dump(subject))
         restored.children.first.persistent.should == "data"
       end
 
       it "should not dump/restore unmarshalled attributes" do
-        @obj.children.first.transient = "data"
-        restored = Marshal.load(Marshal.dump(@obj))
+        subject.children.first.transient = "data"
+        restored = Marshal.load(Marshal.dump(subject))
         restored.children.first.transient.should be_nil
       end
 
