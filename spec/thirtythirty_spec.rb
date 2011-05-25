@@ -131,51 +131,70 @@ describe Thirtythirty do
 
   end
 
-  describe "marshalling (#_dump/._load)" do
+  describe ".marshal_with_compression/#marshalling_compression_level" do
 
-    before do
-      @obj = ThirtythirtyTree.new
+    subject { Class.new(ThirtythirtyBase) }
+
+    it "should default to nil" do
+      subject.marshal # needs to be done to activate custom marshalling at all
+      subject.marshalling_compression_level.should be_nil
     end
 
+    it "should be settable" do
+      subject.marshal_with_compression Zlib::BEST_SPEED
+      subject.marshalling_compression_level.should == Zlib::BEST_SPEED
+    end
+
+    it "should default to Zlib::BEST_COMPRESSION" do
+      subject.marshal_with_compression
+      subject.marshalling_compression_level.should == Zlib::BEST_COMPRESSION
+    end
+
+  end
+
+  describe "marshalling (#_dump/._load)" do
+
+    subject { ThirtythirtyTree.new }
+
     it "should dump a string" do
-      Marshal.dump(@obj).should be_a(String)
+      Marshal.dump(subject).should be_a(String)
     end
 
     it "should restore a ThirtythirtyTree" do
-      Marshal.load(Marshal.dump(@obj)).should be_a(ThirtythirtyTree)
+      Marshal.load(Marshal.dump(subject)).should be_a(ThirtythirtyTree)
     end
 
     it "should dump/restore marshalled attributes" do
-      @obj.persistent = "data"
-      restored = Marshal.load(Marshal.dump(@obj))
+      subject.persistent = "data"
+      restored = Marshal.load(Marshal.dump(subject))
       restored.persistent.should == "data"
     end
 
     it "should not dump/restore unmarshalled attributes" do
-      @obj.transient = "data"
-      restored = Marshal.load(Marshal.dump(@obj))
+      subject.transient = "data"
+      restored = Marshal.load(Marshal.dump(subject))
       restored.transient.should be_nil
     end
 
     context "with a single relation" do
 
       before do
-        @obj.parent = ThirtythirtyTree.new
+        subject.parent = ThirtythirtyTree.new
       end
 
       it "should restore a ThirtythirtyTree" do
-        Marshal.load(Marshal.dump(@obj)).parent.should be_a(ThirtythirtyTree)
+        Marshal.load(Marshal.dump(subject)).parent.should be_a(ThirtythirtyTree)
       end
 
       it "should dump/restore marshalled attributes" do
-        @obj.parent.persistent = "data"
-        restored = Marshal.load(Marshal.dump(@obj))
+        subject.parent.persistent = "data"
+        restored = Marshal.load(Marshal.dump(subject))
         restored.parent.persistent.should == "data"
       end
 
       it "should not dump/restore unmarshalled attributes" do
-        @obj.parent.transient = "data"
-        restored = Marshal.load(Marshal.dump(@obj))
+        subject.parent.transient = "data"
+        restored = Marshal.load(Marshal.dump(subject))
         restored.parent.transient.should be_nil
       end
 
@@ -184,28 +203,70 @@ describe Thirtythirty do
     context "with a collection relation" do
 
       before do
-        @obj.children = [ThirtythirtyTree.new]
+        subject.children = [ThirtythirtyTree.new]
       end
 
       it "should restore an array of ThirtythirtyTrees" do
-        children = Marshal.load(Marshal.dump(@obj)).children
+        children = Marshal.load(Marshal.dump(subject)).children
         children.should be_a(Array)
         children.size.should == 1
         children.first.should be_a(ThirtythirtyTree)
       end
 
       it "should dump/restore marshalled attributes" do
-        @obj.children.first.persistent = "data"
-        restored = Marshal.load(Marshal.dump(@obj))
+        subject.children.first.persistent = "data"
+        restored = Marshal.load(Marshal.dump(subject))
         restored.children.first.persistent.should == "data"
       end
 
       it "should not dump/restore unmarshalled attributes" do
-        @obj.children.first.transient = "data"
-        restored = Marshal.load(Marshal.dump(@obj))
+        subject.children.first.transient = "data"
+        restored = Marshal.load(Marshal.dump(subject))
         restored.children.first.transient.should be_nil
       end
 
+    end
+
+    context "with compression" do
+
+      it "compressed version should be smaller than the uncompressed version and generally work" do
+        obj = Uncompressed.new
+        obj.persistent = "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo text"
+        uncompressed = Marshal.dump(obj)
+        obj = Compressed.new
+        obj.persistent = "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo text"
+        compressed = Marshal.dump(obj)
+        compressed.size.should < uncompressed.size
+
+        restored = Marshal.load(compressed)
+        restored.should be_a(Compressed)
+        restored.persistent.should == "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo text"
+      end
+
+    end
+
+  end
+
+  describe "inheritance" do
+
+    it "should have the same marshalled attributes as the parent" do
+      Class.new(ThirtythirtyTree).marshalled_attributes.should == ThirtythirtyTree.marshalled_attributes
+    end
+
+    it "should be able to add it's own marshalled attributes" do
+      Class.new(ThirtythirtyTree) do
+        marshalled_accessor :another_persistent
+      end.marshalled_attributes.should == ThirtythirtyTree.marshalled_attributes + [:another_persistent]
+    end
+
+    it "should have the same compression level as the parent" do
+      Class.new(Compressed).marshalling_compression_level.should == Compressed.marshalling_compression_level
+    end
+
+    it "should be able to set it's own compression level" do
+      Class.new(Uncompressed) do
+        marshal_with_compression Zlib::BEST_COMPRESSION
+      end.marshalling_compression_level.should == Zlib::BEST_COMPRESSION
     end
 
   end

@@ -7,7 +7,7 @@ module Thirtythirty
       send :include, InstanceMethods
       @marshalled_attributes = []
     end
-    @marshalled_attributes = (@marshalled_attributes.map | attributes.flatten.map(&:to_sym).uniq).freeze
+    @marshalled_attributes = (@marshalled_attributes.map | attributes.flatten.map(&:to_sym).uniq)
   end
 
   # Activates marshalling for the given attributes and generates getters - you have to implement setters yourself!
@@ -25,16 +25,28 @@ module Thirtythirty
     attr_accessor *marshal(attributes)
   end
 
+  def marshal_with_compression(level = Zlib::BEST_COMPRESSION)
+    marshal
+    @marshalling_compression_level = level
+  end
+
 private
 
   module ClassMethods
 
-    attr_reader :marshalled_attributes
+    def marshalled_attributes
+      ((superclass.respond_to?(:marshalled_attributes) ? superclass.marshalled_attributes : []) + (@marshalled_attributes || [])).uniq.freeze
+    end
+
+    def marshalling_compression_level
+      @marshalling_compression_level || (superclass.respond_to?(:marshalling_compression_level) ? superclass.marshalling_compression_level : nil)
+    end
 
   protected
 
     def _load(dumped)
-      data = Marshal.load(dumped)
+      uncompressed = Zlib::Inflate.inflate(dumped) rescue dumped
+      data = Marshal.load(uncompressed)
       obj = new
       marshalled_attributes.each do |attr|
         obj.send(:"#{attr}=", Marshal.load(data[attr]))
@@ -47,7 +59,9 @@ private
   module InstanceMethods
 
     def _dump(*args)
-      Marshal.dump(build_marshalled_attributes_hash {|v| Marshal.dump(v)})
+      dumped = Marshal.dump(build_marshalled_attributes_hash {|v| Marshal.dump(v)})
+      dumped = Zlib::Deflate.deflate(dumped, self.class.marshalling_compression_level) if self.class.marshalling_compression_level
+      dumped
     end
 
     def marshalled_attributes
