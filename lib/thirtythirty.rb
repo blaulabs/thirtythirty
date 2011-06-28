@@ -7,7 +7,10 @@ module Thirtythirty
       send :include, InstanceMethods
       @marshalled_attributes = []
     end
-    @marshalled_attributes = (@marshalled_attributes.map | attributes.flatten.map(&:to_sym).uniq)
+    attributes_to_add = attributes.flatten.map(&:to_sym).uniq
+    added_attributes = attributes_to_add - @marshalled_attributes
+    @marshalled_attributes = (@marshalled_attributes | attributes_to_add)
+    added_attributes
   end
 
   # Activates marshalling for the given attributes and generates getters - you have to implement setters yourself!

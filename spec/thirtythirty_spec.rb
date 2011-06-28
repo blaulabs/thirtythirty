@@ -96,6 +96,38 @@ describe Thirtythirty do
 
   end
 
+  describe "combined marshalling" do
+
+    subject do
+      Class.new(ThirtythirtyBase) do
+        attr_reader :untouched
+        def untouched=(untouched)
+          @untouched = untouched.upcase
+        end
+        marshal :untouched
+        marshalled_accessor :touched
+      end
+    end
+
+    it "should add given attributes to marshalled attributes (symbolized, unique, frozen)" do
+      subject.marshalled_attributes.should =~ [:touched, :untouched]
+      subject.marshalled_attributes.should be_frozen
+    end
+
+    it "should generate a reader and a writer for attribute touched" do
+      obj = subject.new
+      obj.should respond_to(:touched)
+      obj.should respond_to(:touched)
+    end
+
+    it "should not regenerate reader and writer for attribute untouched" do
+      obj = subject.new
+      obj.untouched = "down"
+      obj.untouched.should == "DOWN"
+    end
+
+  end
+
   describe "#marshalled_attributes" do
 
     it "should give all marshalled attributes" do
