@@ -12,8 +12,8 @@ Gem::Specification.new do |s|
 
   s.rubyforge_project = "thirtythirty"
 
-  s.add_development_dependency "ci_reporter", "~> 1.6.3"
-  s.add_development_dependency "rspec", "~> 2.4.0"
+  s.add_development_dependency "ci_reporter", "~> 1.6.5"
+  s.add_development_dependency "rspec", "~> 2.6.0"
   s.add_development_dependency "rake", "0.8.7"
 
   s.files         = `git ls-files`.split("\n")
