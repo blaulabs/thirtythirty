@@ -52,7 +52,13 @@ private
       data = Marshal.load(uncompressed)
       obj = new
       marshalled_attributes.each do |attr|
-        obj.send(:"#{attr}=", Marshal.load(data[attr]))
+        setter = :"#{attr}="
+        value = Marshal.load(data[attr])
+        if obj.respond_to?(setter)
+          obj.send(setter, value)
+        else
+          obj.instance_variable_set(:"@#{attr}", value)
+        end
       end
       obj
     end
@@ -75,7 +81,11 @@ private
 
     def build_marshalled_attributes_hash(&block)
       self.class.marshalled_attributes.inject({}) do |hash, attr|
-        value = self.send(attr)
+        value = if self.respond_to?(attr)
+          self.send(attr)
+        else
+          self.instance_variable_get(:"@#{attr}")
+        end
         hash[attr] = block.call(value)
         hash
       end

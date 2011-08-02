@@ -208,6 +208,49 @@ describe Thirtythirty do
       restored.transient.should be_nil
     end
 
+    context "with marshalled instance variable without getter/setter" do
+
+      subject { WithoutGetterSetter.new }
+
+      it "should dump/restore instance variable when nil" do
+        restored = Marshal.load(Marshal.dump(subject))
+        restored.instance_variable_get(:"@ivar").should be_nil
+      end
+
+      it "should dump/restore instance variable when set" do
+        subject.instance_variable_set(:"@ivar", "value")
+        restored = Marshal.load(Marshal.dump(subject))
+        restored.instance_variable_get(:"@ivar").should == "value"
+      end
+
+    end
+
+    context "with marshalled instance variable without setter" do
+
+      subject { WithGetterOnly.new }
+
+      it "should dump accessor value/restore instance variable" do
+        subject.instance_variable_set(:"@ivar", "value")
+        subject.ivar.should == "VALUE"
+        restored = Marshal.load(Marshal.dump(subject))
+        restored.instance_variable_get(:"@ivar").should == "VALUE"
+        restored.ivar.should == "VALUE"
+      end
+
+    end
+
+    context "with marshalled instance variable without getter" do
+
+      subject { WithSetterOnly.new }
+
+      it "should dump instance variable/restore accessor value" do
+        subject.instance_variable_set(:"@ivar", "value")
+        restored = Marshal.load(Marshal.dump(subject))
+        restored.instance_variable_get(:"@ivar").should == "VALUE"
+      end
+
+    end
+
     context "with a single relation" do
 
       before do
