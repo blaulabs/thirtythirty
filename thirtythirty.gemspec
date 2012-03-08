@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name        = "thirtythirty"
-  s.version     = "0.1.0"
+  s.version     = "0.2.0"
   s.date        = Time.now
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Benjamin Behr", "Thomas Jachmann"]
