@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 module Thirtythirty
 
   # Activates marshalling for the given attributes - you have to implement getters/setters yourself!
@@ -53,7 +54,7 @@ private
       obj = new
       marshalled_attributes.each do |attr|
         setter = :"#{attr}="
-        value = Marshal.load(data[attr])
+        value = data[attr] ? Marshal.load(data[attr]) : nil
         if obj.respond_to?(setter)
           obj.send(setter, value)
         else

@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 require 'spec_helper'
 
 describe Thirtythirty do
@@ -316,6 +317,15 @@ describe Thirtythirty do
         restored = Marshal.load(compressed)
         restored.should be_a(Compressed)
         restored.persistent.should == "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo text"
+      end
+
+      it "bla" do
+        b = ThirtythirtyTree2.new
+        b.persistent = 1
+
+        dumped = Marshal.dump(b)
+        ThirtythirtyTree2.marshalled_accessor :attr4
+        lambda { Marshal.load dumped }.should_not raise_error(TypeError)
       end
 
     end

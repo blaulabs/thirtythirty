@@ -1,3 +1,4 @@
+# -*- encoding : utf-8 -*-
 class ThirtythirtyBase
   extend Thirtythirty
 end
@@ -32,4 +33,9 @@ class WithSetterOnly < ThirtythirtyBase
   def ivar=(value)
     @ivar = value.nil? ? nil : value.upcase
   end
+end
+
+class ThirtythirtyTree2 < ThirtythirtyBase
+  marshalled_accessor :persistent, :parent, :children
+  attr_accessor :transient
 end
