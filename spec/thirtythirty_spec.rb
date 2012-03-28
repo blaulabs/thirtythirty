@@ -319,7 +319,7 @@ describe Thirtythirty do
         restored.persistent.should == "loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo text"
       end
 
-      it "bla" do
+      it "does not throw an type error for a not persisted attribute" do
         b = ThirtythirtyTree2.new
         b.persistent = 1
 
