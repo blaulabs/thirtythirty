@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/blaulabs/thirtythirty"
   s.summary     = %q{Marshalling customization}
   s.description = %q{This gem allows for customization of which data to marshal, especially useful for selective session data serialization.}
+  s.license     = "MIT"
 
   s.rubyforge_project = "thirtythirty"
 
